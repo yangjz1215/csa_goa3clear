@@ -259,9 +259,11 @@ function results = run_comparison_para(varargin)
                     ref_point_norm = [1.1, 1.1, 1.1];
                     metrics = calculate_all_metrics(pf_norm, [], ref_point_norm);
                     hv_values(run) = metrics.hv;
+                    igd_values(run) = metrics.igd;
                     spread_values(run) = metrics.spread;
                 catch
                     hv_values(run) = 0;
+                    igd_values(run) = NaN;
                     spread_values(run) = NaN;
                 end
             else

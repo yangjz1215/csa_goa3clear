@@ -326,4 +326,54 @@ saveas(fig_success, fullfile(output_dir, 'comparison_success_rate_boxplot.fig'))
 close(fig_success);
 
 fprintf('Runtime and success rate charts saved to %s\n', output_dir);
+
+%% ==== 新增：IGD 与 Spread 的核心指标可视化 ====
+fprintf('正在绘制 IGD 与 Spread 箱线图...\n');
+
+all_igd = zeros(n_runs_actual, num_algs);
+all_spread = zeros(n_runs_actual, num_algs);
+
+for a = 1:num_algs
+    alg_name = algorithms{a};
+    if isfield(results.(alg_name), 'igd_values') && isfield(results.(alg_name), 'spread_values')
+        all_igd(:, a) = results.(alg_name).igd_values(:);
+        all_spread(:, a) = results.(alg_name).spread_values(:);
+    else
+        warning('未找到 %s 的 IGD 或 Spread 数据！', alg_name);
+    end
+end
+
+fig_igd = figure('Position', [200, 200, 600, 450]);
+set(gcf, 'Color', 'w');
+b_igd = boxplot(all_igd, 'Labels', labels, 'Colors', 'k');
+set(b_igd, 'LineWidth', 1.5);
+h_igd = findobj(gca,'Tag','Box');
+for j = 1:length(h_igd)
+    patch(get(h_igd(j),'XData'), get(h_igd(j),'YData'), colors(num_algs-j+1,:), 'FaceAlpha', 0.6);
+end
+ylabel('Inverted Generational Distance (IGD) \downarrow', 'FontWeight', 'bold', 'FontSize', 12);
+title('Convergence Evaluation: IGD Metric (Lower is Better)', 'FontWeight', 'bold', 'FontSize', 14);
+grid on; set(gca, 'GridLineStyle', ':', 'GridAlpha', 0.6, 'FontSize', 11, 'LineWidth', 1.2);
+exportgraphics(fig_igd, fullfile(output_dir, 'comparison_igd_boxplot.png'), 'Resolution', 300);
+saveas(fig_igd, fullfile(output_dir, 'comparison_igd_boxplot.fig'));
+close(fig_igd);
+
+fig_spread = figure('Position', [250, 250, 600, 450]);
+set(gcf, 'Color', 'w');
+b_spread = boxplot(all_spread, 'Labels', labels, 'Colors', 'k');
+set(b_spread, 'LineWidth', 1.5);
+h_spread = findobj(gca,'Tag','Box');
+for j = 1:length(h_spread)
+    patch(get(h_spread(j),'XData'), get(h_spread(j),'YData'), colors(num_algs-j+1,:), 'FaceAlpha', 0.6);
+end
+ylabel('Spread Metric \uparrow', 'FontWeight', 'bold', 'FontSize', 12);
+title('Diversity Evaluation: Spread Metric (Higher is Better)', 'FontWeight', 'bold', 'FontSize', 14);
+grid on; set(gca, 'GridLineStyle', ':', 'GridAlpha', 0.6, 'FontSize', 11, 'LineWidth', 1.2);
+exportgraphics(fig_spread, fullfile(output_dir, 'comparison_spread_boxplot.png'), 'Resolution', 300);
+saveas(fig_spread, fullfile(output_dir, 'comparison_spread_boxplot.fig'));
+close(fig_spread);
+
+fprintf('IGD and Spread charts saved to %s\n', output_dir);
+fprintf('  - comparison_igd_boxplot.fig/png (收敛逼近度)\n');
+fprintf('  - comparison_spread_boxplot.fig/png (解集分布广度)\n');
 end
